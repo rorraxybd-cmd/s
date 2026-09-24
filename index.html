@@ -47,6 +47,14 @@
 
         window.handleCartGoogleVerify = async function(e) {
             e.preventDefault();
+            
+            const phoneInput = document.getElementById('userWhatsApp').value.trim();
+            const commentsInput = document.getElementById('userComments').value.trim();
+            if(!phoneInput || !commentsInput) {
+                window.showToast("Please fill in all required fields!", true);
+                return;
+            }
+
             showLuxuryLoader();
             try {
                 const result = await signInWithPopup(auth, provider);
@@ -56,19 +64,19 @@
                     category: "ecosystem_service",
                     name: user.displayName || "Valued Customer",
                     email: user.email,
-                    phone: document.getElementById('userDialCode').value + " " + document.getElementById('userWhatsApp').value,
-                    comments: document.getElementById('userComments').value.trim(),
+                    phone: document.getElementById('userDialCode').value + " " + phoneInput,
+                    comments: commentsInput,
                     createdAt: serverTimestamp()
                 };
 
                 await addDoc(collection(db, "enterprise_submissions"), formData);
                 hideLuxuryLoader();
-                window.showToast("Submit & Google Verification Successful!");
+                showSuccessCheckmark();
                 document.getElementById('dynamicForm').reset();
             } catch (error) {
-                console.error("Auth Error Code:", error.code);
+                console.error("Auth/Firestore Error:", error);
                 hideLuxuryLoader();
-                window.showToast("Verification/Submission failed: " + error.message, true);
+                window.showToast("Submission failed: " + error.message, true);
             }
         };
 
@@ -90,12 +98,22 @@
             let loader = document.getElementById('luxuryLoadingOverlay');
             if(loader) loader.style.display = 'none';
         }
+
+        function showSuccessCheckmark() {
+            let overlay = document.getElementById('successCheckOverlay');
+            if(overlay) {
+                overlay.style.display = 'flex';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 2500);
+            }
+        }
     </script>
 
     <style>
         :root {
             --bg-black: #000000;
-            --surface-bg: rgba(12, 12, 15, 0.95);
+            --surface-bg: rgba(15, 15, 18, 0.96);
             --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --gold-solid: #d4af37;
             --text-white: #ffffff;
@@ -131,7 +149,7 @@
 
         #luxuryLoadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 999998; display: none;
+            background: rgba(0,0,0,0.88); z-index: 999998; display: none;
             align-items: center; justify-content: center; flex-direction: column; gap: 15px;
             color: var(--gold-solid); font-family: var(--font-luxury); font-size: 0.9rem; letter-spacing: 2px;
         }
@@ -141,6 +159,28 @@
             animation: spinLoader 0.8s linear infinite;
         }
         @keyframes spinLoader { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* সাকসেস টিক মার্ক অ্যানিমেশন ওভারলে */
+        #successCheckOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 999999; display: none;
+            align-items: center; justify-content: center; flex-direction: column; gap: 18px;
+            animation: fadeInOverlay 0.3s ease;
+        }
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+        
+        .success-checkmark-box {
+            width: 80px; height: 80px; border-radius: 50%; background: var(--gold-gradient);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px rgba(212,175,55,0.6);
+            animation: popCheck 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popCheck { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .success-checkmark-box i { font-size: 2.2rem; color: #000; }
+        .success-text {
+            font-family: var(--font-luxury); font-size: 1.1rem; color: var(--gold-solid);
+            letter-spacing: 1px; font-weight: 900; text-transform: uppercase; text-align: center;
+        }
 
         .main-wrapper { 
             width: 100%; 
@@ -158,7 +198,7 @@
             padding: 30px 16px; 
             text-align: center; 
             box-shadow: 0 8px 30px rgba(0,0,0,0.8); 
-            border: none !important; 
+            border: 1px solid rgba(212, 175, 55, 0.15); 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -198,6 +238,7 @@
             border-radius: 16px;
             padding: 24px 20px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            border: 1px solid rgba(212, 175, 55, 0.15);
         }
 
         .principles-header {
@@ -226,29 +267,33 @@
         .principles-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 14px;
         }
 
         @media(max-width: 850px) { .principles-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 500px) { .principles-grid { grid-template-columns: 1fr; } }
 
         .principle-item {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(10, 10, 13, 0.7);
             border-radius: 12px;
-            padding: 14px;
+            padding: 16px;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            border: none;
-            transition: all 0.3s ease;
+            gap: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: cardFadeIn 0.8s ease backwards;
         }
 
         .principle-item:hover {
-            transform: translateY(-2px);
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.15);
+            background: rgba(20, 20, 25, 0.9);
         }
 
         .principle-icon {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -262,7 +307,7 @@
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             font-family: var(--font-luxury);
         }
 
@@ -275,7 +320,7 @@
         .pinterest-masonry { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 14px; 
+            gap: 16px; 
         }
         @media(max-width: 850px) { .pinterest-masonry { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 500px) { .pinterest-masonry { grid-template-columns: 1fr; } }
@@ -283,22 +328,29 @@
         .feature-card { 
             background: var(--surface-bg); 
             border-radius: 14px; 
-            padding: 18px; 
+            padding: 20px; 
             text-align: center; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6); 
+            box-shadow: 0 6px 22px rgba(0,0,0,0.7); 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between; 
-            min-height: 270px; 
-            border: none;
+            min-height: 280px; 
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.45);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
         .feature-icon { 
             font-size: 1.8rem; 
             background: var(--gold-gradient); 
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
-            margin: 0 auto 8px auto;
+            margin: 0 auto 10px auto;
             display: inline-block;
         }
 
@@ -316,7 +368,7 @@
             font-size: 0.68rem; 
             color: var(--text-gray); 
             line-height: 1.6; 
-            margin-bottom: 10px; 
+            margin-bottom: 12px; 
         }
 
         .graph-box { 
@@ -384,6 +436,7 @@
             padding: 30px 16px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.8);
             text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.15);
         }
 
         .form-title {
@@ -417,68 +470,69 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
 
+        /* প্রিমিয়াম ক্লিয়ার গোল শেপ (Circular Badge) বাটন */
         .tools-suite-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 165px;
-            height: 165px;
+            width: 170px;
+            height: 170px;
             margin: 0 auto 24px auto;
-            background: linear-gradient(135deg, #15151a 0%, #221c0e 100%);
+            background: radial-gradient(circle, rgba(25,25,32,0.95) 0%, rgba(10,10,13,0.98) 100%);
             border: 3px solid var(--gold-solid);
             border-radius: 50%;
             color: #ffffff;
             text-decoration: none;
             text-align: center;
             position: relative;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.35), inset 0 0 15px rgba(212, 175, 55, 0.2);
-            transition: all 0.4s ease;
-            animation: glowPulse 2s infinite alternate;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3), inset 0 0 20px rgba(212, 175, 55, 0.15);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: glowPulse 2.5s infinite alternate;
         }
 
         .tools-suite-btn i {
-            font-size: 1.7rem;
-            margin-bottom: 4px;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .tools-suite-btn .suite-title {
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             font-weight: 900;
             font-family: var(--font-luxury);
             color: #ffffff;
             text-transform: uppercase;
-            line-height: 1.3;
+            line-height: 1.25;
             padding: 0 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
         }
 
         .tools-suite-btn .suite-view {
-            font-size: 0.6rem;
+            font-size: 0.62rem;
             font-weight: 800;
             background: var(--gold-gradient);
             color: #000;
-            padding: 2px 12px;
+            padding: 2px 14px;
             border-radius: 12px;
             margin-top: 6px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            letter-spacing: 1.2px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.6);
         }
 
         @keyframes glowPulse {
             0% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.25); transform: scale(1); }
-            100% { box-shadow: 0 0 35px rgba(212, 175, 55, 0.65); transform: scale(1.03); }
+            100% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.7); transform: scale(1.04); }
         }
 
         .tools-suite-btn:hover {
             background: var(--gold-gradient);
             color: #000;
             border-color: #fff;
-            transform: scale(1.06);
+            transform: scale(1.07);
         }
         .tools-suite-btn:hover i, .tools-suite-btn:hover .suite-title {
             background: none;
@@ -494,7 +548,8 @@
 
         .form-group { margin-bottom: 14px; text-align: left; }
         .form-group label { display: block; font-size: 0.68rem; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; font-weight: 800; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(0,0,0,0.7); border: none; padding: 11px 12px; color: #fff; border-radius: 10px; font-size: 0.82rem; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(0,0,0,0.7); border: none; padding: 11px 12px; color: #fff; border-radius: 10px; font-size: 0.82rem; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05); }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--gold-solid); }
         
         .phone-row { display: flex; gap: 8px; }
         .phone-row select { width: 160px; flex-shrink: 0; font-size: 0.72rem; }
@@ -529,9 +584,18 @@
 <body>
 
     <div id="toastBox">Action completed successfully!</div>
+    
     <div id="luxuryLoadingOverlay">
         <div class="luxury-spinner"></div>
         <div>AUTHENTICATING & SYNCING...</div>
+    </div>
+
+    <!-- ইনস্ট্যান্ট সাকসেস টিক মার্ক অ্যানিমেশন পপআপ -->
+    <div id="successCheckOverlay">
+        <div class="success-checkmark-box">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="success-text">Submission Confirmed!</div>
     </div>
 
     <div class="main-wrapper">
