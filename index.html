@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>In-House Software & Tools Suite - rorraxy</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- লোগো ফেভিকন -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG">
+
+    <!-- পপিন্স ফন্ট ও ফন্ট অসাম -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-retail: #030305;
+            --card-retail: #08080c;
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --gold-solid: #d4af37;
+            --text-white: #ffffff;
+            --text-gray: #a0a0ab;
+            --font-main: 'Poppins', sans-serif;
+        }
+
+        html, body { 
+            width: 100%; max-width: 100%; overflow-x: hidden; 
+            background: var(--bg-retail) !important; 
+            color: var(--text-white); font-family: var(--font-main); 
+            min-height: 100vh; font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            scroll-behavior: smooth;
+        }
+        
+        body { padding: 40px 16px; text-transform: uppercase !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .hero-logo-img {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            animation: heroPulse 2.5s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes heroPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.2)); }
+            50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.4)); }
+        }
+
+        .hero h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-white);
+            text-transform: uppercase;
+        }
+
+        .hero h1 span { 
+            display: block; 
+            font-size: 2.2rem; 
+            font-weight: 900; 
+            margin-top: 6px; 
+            letter-spacing: -0.5px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        .hero p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+            text-transform: none !important;
+        }
+
+        /* Ecosystem Grid Layout */
+        .ecosystem-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .category-graph-box {
+            background: var(--card-retail);
+            border-radius: 18px;
+            padding: 28px 22px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .category-graph-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .category-header {
+            font-size: 0.95rem;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-header i {
+            font-size: 1.15rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: rgba(13, 13, 18, 0.65);
+            border-radius: 14px;
+            padding: 22px 14px;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--gold-gradient);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            background: rgba(20, 20, 28, 0.85);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-icon-graph {
+            font-size: 2.2rem;
+            margin-bottom: 14px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: customZoomPulse 3s ease-in-out infinite;
+            display: inline-block;
+            will-change: transform;
+        }
+
+        @keyframes customZoomPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .tool-card:hover .tool-icon-graph {
+            animation-play-state: paused;
+            transform: scale(1.12);
+        }
+
+        .tool-card h3 {
+            font-size: 0.83rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 8px;
+            line-height: 1.4;
+            letter-spacing: 0.2px;
+        }
+
+        .tool-card p {
+            font-size: 0.72rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+            text-transform: none !important;
+        }
+
+        .tech-stack-section {
+            background: rgba(8, 8, 12, 0.9);
+            border-radius: 18px;
+            padding: 30px 22px;
+            margin-top: 35px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .tech-stack-section h3 {
+            font-size: 1.1rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            white-space: nowrap; 
+            letter-spacing: 0.5px;
+        }
+
+        .tech-stack-section p {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+            max-width: 700px;
+            margin: 0 auto 20px auto;
+            text-transform: none !important;
+            line-height: 1.6;
+        }
+
+        .tech-badges-grid {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            background: rgba(16, 16, 22, 0.9);
+            padding: 10px 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 0.74rem;
+            color: var(--text-white);
+            transition: transform 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tech-badge:hover {
+            transform: scale(1.02);
+        }
+
+        .tech-badge i {
+            font-size: 1.05rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-navigation {
+            margin-top: 45px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--gold-gradient);
+            color: #030305;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .back-home-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            .category-header { white-space: normal; font-size: 0.9rem; }
+            .tech-stack-section h3 { white-space: normal; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px 10px; }
+            .category-graph-box { padding: 18px 14px; }
+            .tools-grid { grid-template-columns: 1fr; gap: 12px; }
+            .hero h1 { font-size: 1rem; letter-spacing: 1px; }
+            .hero h1 span { font-size: 1.6rem; }
+            .hero-logo-img { width: 90px; height: 90px; }
+            .tool-icon-graph { font-size: 2rem; margin-bottom: 10px; }
+            .category-header { white-space: normal; font-size: 0.85rem; line-height: 1.4; }
+            .tech-badges-grid { flex-direction: column; gap: 10px; }
+            .tech-badge { width: 100%; justify-content: center; white-space: normal; }
+            .tech-stack-section h3 { font-size: 0.95rem; white-space: normal; }
+            .back-home-btn { width: 100%; padding: 13px 20px; font-size: 0.75rem; white-space: normal; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <!-- Hero Section -->
+        <header class="hero">
+            <img src="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG" alt="Rorraxy Logo" class="hero-logo-img">
+            <h1>
+                In-House
+                <span>Software & Tools Suite</span>
+            </h1>
+            <p>
+                Welcome to the core digital engine of rorraxy. We completely eliminate third-party dependencies. Every application, media tool, automation engine, and financial calculator below is custom-engineered to power your global enterprise.
+            </p>
+        </header>
+
+        <!-- Ecosystem Grid Showcase -->
+        <section class="ecosystem-matrix">
+            
+            <!-- Box 1 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-boxes-stacked"></i> Product Sourcing & Inventory</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-truck-ramp-box tool-icon-graph"></i>
+                        <h3>Supplier & Material Manager</h3>
+                        <p>App to manage raw materials, supplier profiles, and purchasing costs seamlessly.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-warehouse tool-icon-graph"></i>
+                        <h3>Real-time Inventory Tracker</h3>
+                        <p>Live stock monitoring app with automated low-inventory alerts and warehouse control.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-photo-film"></i> Media, Branding & Content Creation</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-wand-magic-sparkles tool-icon-graph"></i>
+                        <h3>Programmatic Image & Video Editor</h3>
+                        <p>Automated software for batch video editing, image overlays, branding layers, and promotional clips.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-compress tool-icon-graph"></i>
+                        <h3>MB Reducer & Compressor</h3>
+                        <p>High-speed media tool that compresses and optimizes heavy image and video file sizes instantly.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-crop-simple tool-icon-graph"></i>
+                        <h3>Resolution & Dimension Resizer</h3>
+                        <p>Precision utility app to format media dimensions for Facebook, Instagram, TikTok, and web stores.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 3 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-calculator"></i> Custom Calculation & Utility</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-chart-pie tool-icon-graph"></i>
+                        <h3>Pricing & Profit Calculator</h3>
+                        <p>Financial software to compute production expenses, profit margins, and retail pricing.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-ruler-combined tool-icon-graph"></i>
+                        <h3>Customer Sizing Guide App</h3>
+                        <p>Interactive sizing calculator to guide buyers in selecting perfect product dimensions.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-route tool-icon-graph"></i>
+                        <h3>Shipping Cost Calculator</h3>
+                        <p>Automated logistics tool calculating delivery fees based on weight, volume, and distance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 4 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-bullhorn"></i> Marketing & Automation</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-share-nodes tool-icon-graph"></i>
+                        <h3>Social Media Auto-Scheduler</h3>
+                        <p>Marketing app that plans, schedules, and publishes automated posts across multi-social networks.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-comments tool-icon-graph"></i>
+                        <h3>Email & WhatsApp Marketer</h3>
+                        <p>Bulk messaging automation software for promotional campaigns and cart recovery reminders.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 5 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-store"></i> Sales, E-commerce & Logistics</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-mobile-screen-button tool-icon-graph"></i>
+                        <h3>Custom Web & Mobile App Store</h3>
+                        <p>Unified e-commerce application for global customers to browse, order, and transact securely.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-file-invoice-dollar tool-icon-graph"></i>
+                        <h3>Auto-Invoice & Receipt Generator</h3>
+                        <p>Billing software that instantly generates professional invoices, receipts, and order summaries.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-truck-fast tool-icon-graph"></i>
+                        <h3>Courier API Sync App</h3>
+                        <p>Logistics tool linking sales directly with delivery partners for automated parcel booking and tracking.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 6 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-headset"></i> Support & Analytics</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-robot tool-icon-graph"></i>
+                        <h3>CRM & AI Chatbot System</h3>
+                        <p>Customer support app handling inquiries, live chats, FAQs, and buyer relationship databases.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-gauge-high tool-icon-graph"></i>
+                        <h3>Business KPI Dashboard</h3>
+                        <p>Analytics software tracking daily sales performance, web traffic, and operational metrics.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-rotate-left tool-icon-graph"></i>
+                        <h3>Return & Refund Tracker</h3>
+                        <p>Management app streamlining product returns, replacements, and exchange workflows.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 7 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-file-invoice"></i> Finance, Accounting & VAT</h2>
+                <div class="tools-grid" style="grid-template-columns: 1fr; max-width: 420px; margin: 0 auto;">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-calculator tool-icon-graph"></i>
+                        <h3>Automated VAT & Tax Calculator</h3>
+                        <p>Financial compliance app that calculates sales taxes and compiles clean accounting records automatically.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 8 -->
+            <div class="category-graph-box">
+                <h2 class="category-header"><i class="fa-solid fa-shield-halved"></i> Security, Backup & Admin</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fa-solid fa-database tool-icon-graph"></i>
+                        <h3>Automated Data Backup App</h3>
+                        <p>Cloud backup utility safeguarding core databases against unexpected interruptions.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-user-gear tool-icon-graph"></i>
+                        <h3>Role-Based Access Control App</h3>
+                        <p>Admin security utility managing strict staff permissions and privilege levels.</p>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fa-solid fa-file-contract tool-icon-graph"></i>
+                        <h3>Digital Agreement Generator</h3>
+                        <p>Legal automation software generating automated terms, conditions, and contracts for global clients.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Technical Infrastructure Stack -->
+            <div class="tech-stack-section">
+                <h3>Core Technical Infrastructure Stack</h3>
+                <p>
+                    Our software ecosystem is powered by industry-grade global cloud infrastructure to guarantee absolute data security, ultra-low latency, and bulletproof version control.
+                </p>
+                <div class="tech-badges-grid">
+                    <div class="tech-badge"><i class="fa-brands fa-github"></i> GitHub (Version Control)</div>
+                    <div class="tech-badge"><i class="fa-solid fa-fire"></i> Firebase (Database & Auth)</div>
+                    <div class="tech-badge"><i class="fa-solid fa-cloud-arrow-up"></i> Cloudflare (Security & Speed)</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Return to Ecosystem Hub Button (সঠিক লিংকসহ আপডেট করা হয়েছে) -->
+        <div class="footer-navigation">
+            <a href="https://j.rorraxy.com" class="back-home-btn">
+                <i class="fa-solid fa-house"></i> Return to Ecosystem Hub
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
