@@ -1,550 +1,845 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>In-House Software & Tools Suite - rorraxy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RORRAXY | Ecosystem</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- লোগো ফেভিকন -->
-    <link rel="icon" type="image/png" sizes="32x32" href="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG">
-    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG">
-
-    <!-- পপিন্স ফন্ট ও ফন্ট অসাম -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDokhLgGoe4Ib7oxUJ8zczLFWj0YJKk57Y",
+            authDomain: "rorraxy-fcb91.firebaseapp.com",
+            databaseURL: "https://rorraxy-fcb91-default-rtdb.firebaseio.com/",
+            projectId: "rorraxy-fcb91",
+            storageBucket: "rorraxy-fcb91.firebasestorage.app",
+            messagingSenderId: "880891394208",
+            appId: "1:880891394208:web:3bd8ccacf68ad5d53af1c5",
+            measurementId: "G-0XTRV9TPM3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        setPersistence(auth, browserLocalPersistence).catch((error) => {
+            console.error("Persistence Error:", error);
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                let customerData = {
+                    name: user.displayName || "Valued Customer",
+                    email: user.email,
+                    photoURL: user.photoURL || "https://pub-508ef1e45bab487aadde85a1dba202c4.r2.dev/rorraxyfree/mr%20masudar%20logo%20(3).png"
+                };
+                localStorage.setItem('rorraxy_logged_user', JSON.stringify(customerData));
+            }
+        });
+
+        window.handleCartGoogleVerify = async function(e) {
+            e.preventDefault();
+            showLuxuryLoader();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                const formData = {
+                    category: "ecosystem_service",
+                    name: user.displayName || "Valued Customer",
+                    email: user.email,
+                    phone: document.getElementById('userDialCode').value + " " + document.getElementById('userWhatsApp').value,
+                    comments: document.getElementById('userComments').value.trim(),
+                    createdAt: serverTimestamp()
+                };
+
+                await addDoc(collection(db, "enterprise_submissions"), formData);
+                hideLuxuryLoader();
+                window.showToast("Submit & Google Verification Successful!");
+                document.getElementById('dynamicForm').reset();
+            } catch (error) {
+                console.error("Auth Error Code:", error.code);
+                hideLuxuryLoader();
+                window.showToast("Verification/Submission failed: " + error.message, true);
+            }
+        };
+
+        window.showToast = function(message, isError = false) {
+            const toast = document.getElementById('toastBox');
+            if(!toast) return;
+            toast.innerText = message;
+            toast.style.borderColor = isError ? '#ff4d4d' : 'var(--gold-solid)';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+
+        function showLuxuryLoader() {
+            let loader = document.getElementById('luxuryLoadingOverlay');
+            if(loader) loader.style.display = 'flex';
+        }
+
+        function hideLuxuryLoader() {
+            let loader = document.getElementById('luxuryLoadingOverlay');
+            if(loader) loader.style.display = 'none';
+        }
+    </script>
 
     <style>
         :root {
-            --bg-retail: #030305;
-            --card-retail: #08080c;
+            --bg-black: #000000;
+            --surface-bg: rgba(12, 12, 15, 0.95);
             --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --gold-solid: #d4af37;
             --text-white: #ffffff;
-            --text-gray: #a0a0ab;
-            --font-main: 'Poppins', sans-serif;
+            --text-gray: #c0c0c8;
+            --font-luxury: 'Cinzel', serif;
+            --font-body: 'Poppins', sans-serif;
         }
 
-        html, body { 
-            width: 100%; max-width: 100%; overflow-x: hidden; 
-            background: var(--bg-retail) !important; 
-            color: var(--text-white); font-family: var(--font-main); 
-            min-height: 100vh; font-size: 15px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            scroll-behavior: smooth;
-        }
-        
-        body { padding: 40px 16px; text-transform: uppercase !important; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        html { width: 100%; background-color: var(--bg-black); overflow-x: hidden; }
+        body { 
+            width: 100%; 
+            min-height: 100vh; 
+            background-color: var(--bg-black); 
+            color: var(--text-white); 
+            font-family: var(--font-body); 
+            padding: 20px 0 40px 0; 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased; 
+            word-wrap: break-word;
         }
 
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            margin-bottom: 40px;
+        h1, h2, h3, h4 { font-family: var(--font-luxury); }
+
+        #toastBox { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
+            background: rgba(16, 16, 16, 0.98); color: var(--gold-solid); 
+            padding: 12px 24px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; 
+            z-index: 999999; display: none; border: 1px solid var(--gold-solid); 
+            box-shadow: 0 0 20px rgba(212,175,55,0.3); text-align: center;
+        }
+
+        #luxuryLoadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 999998; display: none;
+            align-items: center; justify-content: center; flex-direction: column; gap: 15px;
+            color: var(--gold-solid); font-family: var(--font-luxury); font-size: 0.9rem; letter-spacing: 2px;
+        }
+        .luxury-spinner {
+            width: 45px; height: 45px; border: 3px solid rgba(212,175,55,0.2);
+            border-top: 3px solid var(--gold-solid); border-radius: 50%;
+            animation: spinLoader 0.8s linear infinite;
+        }
+        @keyframes spinLoader { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .main-wrapper { 
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 12px; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .luxury-card { 
+            background: var(--surface-bg); 
+            border-radius: 16px; 
+            padding: 30px 16px; 
+            text-align: center; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8); 
+            border: none !important; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
-            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            justify-content: center;
         }
 
-        .hero-logo-img {
-            width: 110px;
-            height: 110px;
+        .brand-logo-img {
+            width: 75px;
+            height: 75px;
             object-fit: contain;
-            animation: heroPulse 2.5s ease-in-out infinite;
-            will-change: transform;
+            margin: 0 auto 12px auto;
+            display: block;
         }
 
-        @keyframes heroPulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.2)); }
-            50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.4)); }
-        }
-
-        .hero h1 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--text-white);
-            text-transform: uppercase;
-        }
-
-        .hero h1 span { 
-            display: block; 
-            font-size: 2.2rem; 
+        .hero-title { 
+            font-size: clamp(0.95rem, 3.2vw, 1.8rem); 
             font-weight: 900; 
-            margin-top: 6px; 
-            letter-spacing: -0.5px;
+            background: var(--gold-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-transform: uppercase; 
+            margin-bottom: 10px; 
+            letter-spacing: 0.5px; 
+            white-space: nowrap;
+        }
+        
+        .hero-sub { 
+            font-size: 0.78rem; 
+            color: var(--text-gray); 
+            line-height: 1.6; 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+
+        .principles-section {
+            background: var(--surface-bg);
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+        }
+
+        .principles-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .principles-title {
+            font-size: clamp(0.85rem, 2.7vw, 1.3rem);
+            font-weight: 900;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            line-height: 1.2;
-            word-break: normal;
-            overflow-wrap: break-word;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            white-space: nowrap;
         }
 
-        .hero p {
-            font-size: 0.85rem;
+        .principles-sub {
+            font-size: 0.7rem;
             color: var(--text-gray);
-            font-weight: 400;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.7;
-            text-transform: none !important;
+            letter-spacing: 0.5px;
         }
 
-        /* Ecosystem Grid Layout */
-        .ecosystem-matrix {
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media(max-width: 850px) { .principles-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 500px) { .principles-grid { grid-template-columns: 1fr; } }
+
+        .principle-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 14px;
             display: flex;
-            flex-direction: column;
-            gap: 30px;
+            align-items: flex-start;
+            gap: 10px;
+            border: none;
+            transition: all 0.3s ease;
         }
 
-        .category-graph-box {
-            background: var(--card-retail);
-            border-radius: 18px;
-            padding: 28px 22px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .category-graph-box:hover {
+        .principle-item:hover {
             transform: translateY(-2px);
         }
 
-        .category-header {
-            font-size: 0.95rem;
-            font-weight: 800;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 12px;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .category-header i {
-            font-size: 1.15rem;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            flex-shrink: 0;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .tool-card {
-            background: rgba(13, 13, 18, 0.65);
-            border-radius: 14px;
-            padding: 22px 14px;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 2px;
-            background: var(--gold-gradient);
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-4px);
-            background: rgba(20, 20, 28, 0.85);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
-        }
-
-        .tool-card:hover::before {
-            opacity: 1;
-        }
-
-        .tool-icon-graph {
-            font-size: 2.2rem;
-            margin-bottom: 14px;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: customZoomPulse 3s ease-in-out infinite;
-            display: inline-block;
-            will-change: transform;
-        }
-
-        @keyframes customZoomPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-
-        .tool-card:hover .tool-icon-graph {
-            animation-play-state: paused;
-            transform: scale(1.12);
-        }
-
-        .tool-card h3 {
-            font-size: 0.83rem;
-            font-weight: 700;
-            color: var(--text-white);
-            margin-bottom: 8px;
-            line-height: 1.4;
-            letter-spacing: 0.2px;
-        }
-
-        .tool-card p {
-            font-size: 0.72rem;
-            color: var(--text-gray);
-            line-height: 1.6;
-            text-transform: none !important;
-        }
-
-        .tech-stack-section {
-            background: rgba(8, 8, 12, 0.9);
-            border-radius: 18px;
-            padding: 30px 22px;
-            margin-top: 35px;
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        .tech-stack-section h3 {
+        .principle-icon {
             font-size: 1.1rem;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            white-space: nowrap; 
-            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        .tech-stack-section p {
+        .principle-content h4 {
+            font-size: 0.78rem;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 3px;
+            font-family: var(--font-luxury);
+        }
+
+        .principle-content p {
+            font-size: 0.65rem;
             color: var(--text-gray);
-            font-size: 0.8rem;
-            max-width: 700px;
-            margin: 0 auto 20px auto;
-            text-transform: none !important;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
-        .tech-badges-grid {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            flex-wrap: wrap;
+        .pinterest-masonry { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 14px; 
+        }
+        @media(max-width: 850px) { .pinterest-masonry { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 500px) { .pinterest-masonry { grid-template-columns: 1fr; } }
+
+        .feature-card { 
+            background: var(--surface-bg); 
+            border-radius: 14px; 
+            padding: 18px; 
+            text-align: center; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            min-height: 270px; 
+            border: none;
+        }
+        
+        .feature-icon { 
+            font-size: 1.8rem; 
+            background: var(--gold-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin: 0 auto 8px auto;
+            display: inline-block;
         }
 
-        .tech-badge {
-            background: rgba(16, 16, 22, 0.9);
-            padding: 10px 18px;
-            border-radius: 12px;
-            display: flex;
+        .feature-title { 
+            font-size: 0.88rem; 
+            font-weight: 800; 
+            background: var(--gold-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-family: var(--font-luxury); 
+            margin-bottom: 6px; 
+        }
+        
+        .feature-desc { 
+            font-size: 0.68rem; 
+            color: var(--text-gray); 
+            line-height: 1.6; 
+            margin-bottom: 10px; 
+        }
+
+        .graph-box { 
+            height: 75px; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-top: auto; 
+            padding-top: 8px; 
+            border-top: 1px solid rgba(212,175,55,0.08); 
+            overflow: hidden; 
+        }
+
+        .graph-type-1 { width: 45px; height: 45px; border: 2px dashed var(--gold-solid); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: spin1 2s infinite linear; }
+        .graph-type-1-inner { width: 14px; height: 14px; background: var(--gold-gradient); border-radius: 50%; }
+        @keyframes spin1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .graph-type-2 { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 3px; padding: 0 5px; }
+        .ecom-thick-bar { width: 5px; background: var(--gold-gradient); border-radius: 3px 3px 0 0; animation: ecomAnim 0.8s infinite alternate ease-in-out; }
+        @keyframes ecomAnim { 0% { height: 8px; opacity: 0.4; } 100% { height: 55px; opacity: 1; } }
+
+        .graph-type-3 { display: flex; align-items: center; justify-content: center; width: 100%; }
+        .badge-3 { background: var(--gold-gradient); color: #000; font-size: 0.65rem; font-weight: 900; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; box-shadow: 0 0 15px rgba(212,175,55,0.4); animation: pulseBadge 1s infinite alternate; }
+        @keyframes pulseBadge { from { transform: scale(0.95); } to { transform: scale(1.05); } }
+
+        .graph-type-4 { display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%; padding: 0 10px; }
+        .node-4 { width: 8px; height: 8px; background: var(--gold-solid); border-radius: 50%; }
+        .line-4 { height: 3px; flex: 1; background: var(--gold-gradient); position: relative; overflow: hidden; border-radius: 2px; }
+        .ball-4 { width: 6px; height: 6px; background: #fff; border-radius: 50%; position: absolute; top: -1.5px; animation: anim4ball 0.8s infinite linear; }
+        @keyframes anim4ball { 0% { left: 0; } 100% { left: 100%; } }
+
+        .graph-type-5 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; }
+        .track-5 { width: 85%; height: 4px; background: #111; position: relative; overflow: hidden; border-radius: 2px; }
+        .fill-5 { width: 35px; height: 100%; background: var(--gold-gradient); position: absolute; animation: anim5 0.7s infinite linear; }
+        @keyframes anim5 { 0% { left: -40px; } 100% { left: 100%; } }
+
+        .graph-type-6 { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 100%; padding: 0 10px; }
+        .track-6 { width: 100%; height: 6px; background: #111; border-radius: 3px; overflow: hidden; }
+        .fill-6 { height: 100%; width: 0%; background: var(--gold-gradient); animation: fillProgress 1.2s infinite alternate ease-in-out; }
+        @keyframes fillProgress { 0% { width: 20%; } 100% { width: 100%; } }
+
+        .graph-type-7 { display: flex; align-items: flex-end; justify-content: center; gap: 3px; width: 100%; height: 100%; }
+        .eq-7 { width: 4px; background: var(--gold-gradient); border-radius: 2px; animation: anim7 0.4s infinite alternate ease-in-out; }
+        @keyframes anim7 { from { height: 8px; } to { height: 50px; } }
+
+        .graph-type-8 { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: space-around; gap: 4px; padding: 0 5px; }
+        .aff-bar { width: 6px; background: var(--gold-gradient); border-radius: 3px 3px 0 0; animation: affAnim 0.6s infinite alternate ease-in-out; }
+        .aff-bar:nth-child(1) { animation-delay: 0.1s; }
+        .aff-bar:nth-child(2) { animation-delay: 0.3s; }
+        .aff-bar:nth-child(3) { animation-delay: 0.2s; }
+        .aff-bar:nth-child(4) { animation-delay: 0.4s; }
+        .aff-bar:nth-child(5) { animation-delay: 0.15s; }
+        .aff-bar:nth-child(6) { animation-delay: 0.35s; }
+        @keyframes affAnim { 0% { height: 10px; } 100% { height: 55px; } }
+
+        .graph-type-9 { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+        .core-9 { width: 10px; height: 10px; background: var(--gold-solid); border-radius: 50%; }
+        .ring-9 { position: absolute; width: 100%; height: 100%; border: 2px solid var(--gold-solid); border-radius: 50%; animation: anim9 0.9s infinite ease-out; }
+        @keyframes anim9 { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+
+        .bottom-form-container {
+            background: var(--surface-bg);
+            border-radius: 16px;
+            padding: 30px 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+
+        .form-title {
+            font-family: var(--font-luxury);
+            font-size: 1.15rem;
+            color: #ffffff;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .gmail-contact-link {
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid var(--gold-solid);
+            color: var(--gold-solid);
+            padding: 9px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 700;
-            font-size: 0.74rem;
-            color: var(--text-white);
-            transition: transform 0.2s ease;
-            white-space: nowrap;
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        .gmail-contact-link:hover {
+            background: var(--gold-gradient);
+            color: #000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
 
-        .tech-badge:hover {
-            transform: scale(1.02);
+        /* স্পষ্ট ও আধুনিক গোল শেপ (Circular Badge) বাটন */
+        .tools-suite-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 165px;
+            height: 165px;
+            margin: 0 auto 24px auto;
+            background: linear-gradient(135deg, #15151a 0%, #221c0e 100%);
+            border: 3px solid var(--gold-solid);
+            border-radius: 50%;
+            color: #ffffff;
+            text-decoration: none;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.35), inset 0 0 15px rgba(212, 175, 55, 0.2);
+            transition: all 0.4s ease;
+            animation: glowPulse 2s infinite alternate;
         }
 
-        .tech-badge i {
-            font-size: 1.05rem;
+        .tools-suite-btn i {
+            font-size: 1.7rem;
+            margin-bottom: 4px;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .footer-navigation {
-            margin-top: 45px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
+        .tools-suite-btn .suite-title {
+            font-size: 0.68rem;
+            font-weight: 900;
+            font-family: var(--font-luxury);
+            color: #ffffff;
+            text-transform: uppercase;
+            line-height: 1.3;
+            padding: 0 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        .back-home-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: var(--gold-gradient);
-            color: #030305;
-            padding: 14px 32px;
-            border-radius: 14px;
-            font-size: 0.8rem;
+        .tools-suite-btn .suite-view {
+            font-size: 0.6rem;
             font-weight: 800;
-            text-decoration: none;
-            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+            background: var(--gold-gradient);
+            color: #000;
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
 
-        .back-home-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(212, 175, 55, 0.4);
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.25); transform: scale(1); }
+            100% { box-shadow: 0 0 35px rgba(212, 175, 55, 0.65); transform: scale(1.03); }
         }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-12px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tools-suite-btn:hover {
+            background: var(--gold-gradient);
+            color: #000;
+            border-color: #fff;
+            transform: scale(1.06);
+        }
+        .tools-suite-btn:hover i, .tools-suite-btn:hover .suite-title {
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: #000;
+            color: #000;
+            text-shadow: none;
+        }
+        .tools-suite-btn:hover .suite-view {
+            background: #000;
+            color: #fff;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group label { display: block; font-size: 0.68rem; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; font-weight: 800; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; background: rgba(0,0,0,0.7); border: none; padding: 11px 12px; color: #fff; border-radius: 10px; font-size: 0.82rem; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); }
+        
+        .phone-row { display: flex; gap: 8px; }
+        .phone-row select { width: 160px; flex-shrink: 0; font-size: 0.72rem; }
 
-        @media (max-width: 1024px) {
-            .tools-grid { grid-template-columns: repeat(2, 1fr); }
-            .category-header { white-space: normal; font-size: 0.9rem; }
-            .tech-stack-section h3 { white-space: normal; }
+        /* সাদা সাবমিট ও ভেরিফাই উইথ গুগল বাটন (স্পষ্ট ও অরিজিনাল লোগো সহ) */
+        .google-verify-btn { 
+            width: 100%; 
+            background: rgba(255, 255, 255, 0.98); 
+            color: #000; 
+            border: none; 
+            padding: 13px; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 0.82rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            cursor: pointer; 
+            margin-top: 14px; 
+            box-shadow: 0 4px 15px rgba(255,255,255,0.25); 
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            font-family: var(--font-luxury);
         }
-
-        @media (max-width: 768px) {
-            body { padding: 12px 10px; }
-            .category-graph-box { padding: 18px 14px; }
-            .tools-grid { grid-template-columns: 1fr; gap: 12px; }
-            .hero h1 { font-size: 1rem; letter-spacing: 1px; }
-            .hero h1 span { font-size: 1.6rem; }
-            .hero-logo-img { width: 90px; height: 90px; }
-            .tool-icon-graph { font-size: 2rem; margin-bottom: 10px; }
-            .category-header { white-space: normal; font-size: 0.85rem; line-height: 1.4; }
-            .tech-badges-grid { flex-direction: column; gap: 10px; }
-            .tech-badge { width: 100%; justify-content: center; white-space: normal; }
-            .tech-stack-section h3 { font-size: 0.95rem; white-space: normal; }
-            .back-home-btn { width: 100%; padding: 13px 20px; font-size: 0.75rem; white-space: normal; text-align: center; }
+        .google-verify-btn:hover {
+            background: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.45);
         }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
+    <div id="toastBox">Action completed successfully!</div>
+    <div id="luxuryLoadingOverlay">
+        <div class="luxury-spinner"></div>
+        <div>AUTHENTICATING & SYNCING...</div>
+    </div>
+
+    <div class="main-wrapper">
         
-        <!-- Hero Section -->
-        <header class="hero">
-            <img src="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG" alt="Rorraxy Logo" class="hero-logo-img">
-            <h1>
-                In-House
-                <span>Software & Tools Suite</span>
-            </h1>
-            <p>
-                Welcome to the core digital engine of rorraxy. We completely eliminate third-party dependencies. Every application, media tool, automation engine, and financial calculator below is custom-engineered to power your global enterprise.
-            </p>
-        </header>
+        <div class="luxury-card">
+            <img src="https://lh3.googleusercontent.com/d/1qyOXxZ8s2cJMEo66NDE4BdoxiC4hy_sG" alt="RORRAXY Logo" class="brand-logo-img">
+            <h1 class="hero-title">All in One Global Ecosystem</h1>
+            <p class="hero-sub">A fully unified, high-performance digital architecture designed to scale your enterprise globally with absolute security and lightning speed.</p>
+        </div>
 
-        <!-- Ecosystem Grid Showcase -->
-        <section class="ecosystem-matrix">
+        <div class="principles-section">
+            <div class="principles-header">
+                <h3 class="principles-title">Core Principles & Architecture</h3>
+                <p class="principles-sub">Engineered for precision, speed, and seamless global scalability</p>
+            </div>
+            <div class="principles-grid">
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div class="principle-content">
+                        <h4>Simplification</h4>
+                        <p>Transforming complex logical or operational challenges into user-friendly solutions.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div class="principle-content">
+                        <h4>Micro-Segmentation</h4>
+                        <p>Breaking massive datasets down into smaller, manageable, and optimized chunks.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-sitemap"></i></div>
+                    <div class="principle-content">
+                        <h4>Sub-Domain Strategy</h4>
+                        <p>Using dedicated sub-domains to organize distinct business operations cleanly.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-folder-tree"></i></div>
+                    <div class="principle-content">
+                        <h4>Clean Folder Architecture</h4>
+                        <p>Maintaining a strict, highly structured hierarchy for files and code.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-eye"></i></div>
+                    <div class="principle-content">
+                        <h4>Extreme Attention to Detail</h4>
+                        <p>Placing meticulous focus on design, coding, and every single feature.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-database"></i></div>
+                    <div class="principle-content">
+                        <h4>Massive Data Organization</h4>
+                        <p>Structuring billions of data points for instant retrieval and absolute order.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-shield-cat"></i></div>
+                    <div class="principle-content">
+                        <h4>Secure Tech Stack</h4>
+                        <p>Leveraging GitHub, Firebase, and Cloudflare for a super-fast and secure infrastructure.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div class="principle-content">
+                        <h4>Automation-First Approach</h4>
+                        <p>Automating repetitive tasks, from content editing to social media posting.</p>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <div class="principle-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+                    <div class="principle-content">
+                        <h4>Modular Scalability</h4>
+                        <p>Designing the system to effortlessly integrate new tools as the business grows.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pinterest-masonry" id="dynamic-services-grid"></div>
+
+        <div class="bottom-form-container">
             
-            <!-- Box 1 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-boxes-stacked"></i> Product Sourcing & Inventory</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-truck-ramp-box tool-icon-graph"></i>
-                        <h3>Supplier & Material Manager</h3>
-                        <p>App to manage raw materials, supplier profiles, and purchasing costs seamlessly.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-warehouse tool-icon-graph"></i>
-                        <h3>Real-time Inventory Tracker</h3>
-                        <p>Live stock monitoring app with automated low-inventory alerts and warehouse control.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 2 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-photo-film"></i> Media, Branding & Content Creation</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-wand-magic-sparkles tool-icon-graph"></i>
-                        <h3>Programmatic Image & Video Editor</h3>
-                        <p>Automated software for batch video editing, image overlays, branding layers, and promotional clips.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-compress tool-icon-graph"></i>
-                        <h3>MB Reducer & Compressor</h3>
-                        <p>High-speed media tool that compresses and optimizes heavy image and video file sizes instantly.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-crop-simple tool-icon-graph"></i>
-                        <h3>Resolution & Dimension Resizer</h3>
-                        <p>Precision utility app to format media dimensions for Facebook, Instagram, TikTok, and web stores.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 3 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-calculator"></i> Custom Calculation & Utility</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-chart-pie tool-icon-graph"></i>
-                        <h3>Pricing & Profit Calculator</h3>
-                        <p>Financial software to compute production expenses, profit margins, and retail pricing.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-ruler-combined tool-icon-graph"></i>
-                        <h3>Customer Sizing Guide App</h3>
-                        <p>Interactive sizing calculator to guide buyers in selecting perfect product dimensions.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-route tool-icon-graph"></i>
-                        <h3>Shipping Cost Calculator</h3>
-                        <p>Automated logistics tool calculating delivery fees based on weight, volume, and distance.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 4 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-bullhorn"></i> Marketing & Automation</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-share-nodes tool-icon-graph"></i>
-                        <h3>Social Media Auto-Scheduler</h3>
-                        <p>Marketing app that plans, schedules, and publishes automated posts across multi-social networks.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-comments tool-icon-graph"></i>
-                        <h3>Email & WhatsApp Marketer</h3>
-                        <p>Bulk messaging automation software for promotional campaigns and cart recovery reminders.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 5 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-store"></i> Sales, E-commerce & Logistics</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-mobile-screen-button tool-icon-graph"></i>
-                        <h3>Custom Web & Mobile App Store</h3>
-                        <p>Unified e-commerce application for global customers to browse, order, and transact securely.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-file-invoice-dollar tool-icon-graph"></i>
-                        <h3>Auto-Invoice & Receipt Generator</h3>
-                        <p>Billing software that instantly generates professional invoices, receipts, and order summaries.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-truck-fast tool-icon-graph"></i>
-                        <h3>Courier API Sync App</h3>
-                        <p>Logistics tool linking sales directly with delivery partners for automated parcel booking and tracking.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 6 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-headset"></i> Support & Analytics</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-robot tool-icon-graph"></i>
-                        <h3>CRM & AI Chatbot System</h3>
-                        <p>Customer support app handling inquiries, live chats, FAQs, and buyer relationship databases.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-gauge-high tool-icon-graph"></i>
-                        <h3>Business KPI Dashboard</h3>
-                        <p>Analytics software tracking daily sales performance, web traffic, and operational metrics.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-rotate-left tool-icon-graph"></i>
-                        <h3>Return & Refund Tracker</h3>
-                        <p>Management app streamlining product returns, replacements, and exchange workflows.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 7 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-file-invoice"></i> Finance, Accounting & VAT</h2>
-                <div class="tools-grid" style="grid-template-columns: 1fr; max-width: 420px; margin: 0 auto;">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-calculator tool-icon-graph"></i>
-                        <h3>Automated VAT & Tax Calculator</h3>
-                        <p>Financial compliance app that calculates sales taxes and compiles clean accounting records automatically.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Box 8 -->
-            <div class="category-graph-box">
-                <h2 class="category-header"><i class="fa-solid fa-shield-halved"></i> Security, Backup & Admin</h2>
-                <div class="tools-grid">
-                    <div class="tool-card">
-                        <i class="fa-solid fa-database tool-icon-graph"></i>
-                        <h3>Automated Data Backup App</h3>
-                        <p>Cloud backup utility safeguarding core databases against unexpected interruptions.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-user-gear tool-icon-graph"></i>
-                        <h3>Role-Based Access Control App</h3>
-                        <p>Admin security utility managing strict staff permissions and privilege levels.</p>
-                    </div>
-                    <div class="tool-card">
-                        <i class="fa-solid fa-file-contract tool-icon-graph"></i>
-                        <h3>Digital Agreement Generator</h3>
-                        <p>Legal automation software generating automated terms, conditions, and contracts for global clients.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Core Technical Infrastructure Stack -->
-            <div class="tech-stack-section">
-                <h3>Core Technical Infrastructure Stack</h3>
-                <p>
-                    Our software ecosystem is powered by industry-grade global cloud infrastructure to guarantee absolute data security, ultra-low latency, and bulletproof version control.
-                </p>
-                <div class="tech-badges-grid">
-                    <div class="tech-badge"><i class="fa-brands fa-github"></i> GitHub (Version Control)</div>
-                    <div class="tech-badge"><i class="fa-solid fa-fire"></i> Firebase (Database & Auth)</div>
-                    <div class="tech-badge"><i class="fa-solid fa-cloud-arrow-up"></i> Cloudflare (Security & Speed)</div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- Return to Ecosystem Hub Button (সঠিক লিংকসহ আপডেট করা হয়েছে) -->
-        <div class="footer-navigation">
-            <a href="https://j.rorraxy.com" class="back-home-btn">
-                <i class="fa-solid fa-house"></i> Return to Ecosystem Hub
+            <!-- সুন্দর স্পষ্ট গোল শেপ সফটওয়্যার অ্যান্ড টুলস স্যুট বাটন -->
+            <a href="https://t.rorraxy.com/" target="_blank" class="tools-suite-btn">
+                <i class="fa-solid fa-toolbox"></i>
+                <span class="suite-title">Software & Tools Suite</span>
+                <span class="suite-view">View</span>
             </a>
+
+            <!-- স্পষ্ট সাদা সার্ভিস রিকোয়ারমেন্ট হেডিং -->
+            <h3 class="form-title">Service Request</h3>
+
+            <!-- সুন্দর গোল্ডেন বর্ডারযুক্ত জিমেইল লিঙ্ক -->
+            <a href="mailto:info.rorraxy@gmail.com?subject=Inquiry%20Regarding%20RORRAXY%20Ecosystem&body=Hello%20Rorraxy%20Team,%0D%0A%0D%0AI%20would%20like%20to%20discuss%20about%20your%20services.%0D%0A%0D%0AThank%20you!" class="gmail-contact-link">
+                <i class="fa-solid fa-envelope"></i> info.rorraxy@gmail.com
+            </a>
+
+            <form id="dynamicForm" onsubmit="handleCartGoogleVerify(event)">
+                <div class="form-group">
+                    <label>WhatsApp Number *</label>
+                    <div class="phone-row">
+                        <select id="userDialCode"></select>
+                        <input type="tel" id="userWhatsApp" placeholder="17XXXXXXXX" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Project Requirements & Details *</label>
+                    <textarea id="userComments" rows="3" placeholder="Describe your project scope..." required></textarea>
+                </div>
+
+                <!-- সাবমিট অ্যান্ড ভেরিফাই উইথ গুগল বাটন (অরিজিনাল গুগল লোগো সহ) -->
+                <button type="submit" class="google-verify-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0;">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.23 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.4l4.09-3.16z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.18 6.6l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                    </svg>
+                    Submit & Verify with Google
+                </button>
+            </form>
         </div>
 
     </div>
 
+    <script>
+        const countriesList = [
+            { name: "Afghanistan", flag: "🇦🇫", code: "+93" }, { name: "Albania", flag: "🇦🇱", code: "+355" },
+            { name: "Algeria", flag: "🇩🇿", code: "+213" }, { name: "Andorra", flag: "🇦🇩", code: "+376" },
+            { name: "Angola", flag: "🇦🇴", code: "+244" }, { name: "Argentina", flag: "🇦🇷", code: "+54" },
+            { name: "Armenia", flag: "🇦🇲", code: "+374" }, { name: "Australia", flag: "🇦🇺", code: "+61" },
+            { name: "Austria", flag: "🇦🇹", code: "+43" }, { name: "Azerbaijan", flag: "🇦🇿", code: "+994" },
+            { name: "Bahamas", flag: "🇧🇸", code: "+1-242" }, { name: "Bahrain", flag: "🇧🇭", code: "+973" },
+            { name: "Bangladesh", flag: "🇧🇩", code: "+880" }, { name: "Barbados", flag: "🇧🇧", code: "+1-246" },
+            { name: "Belarus", flag: "🇧🇾", code: "+375" }, { name: "Belgium", flag: "🇧🇪", code: "+32" },
+            { name: "Belize", flag: "🇧🇿", code: "+501" }, { name: "Benin", flag: "🇧🇯", code: "+229" },
+            { name: "Bhutan", flag: "🇧🇹", code: "+975" }, { name: "Bolivia", flag: "🇧🇴", code: "+591" },
+            { name: "Bosnia and Herzegovina", flag: "🇧🇦", code: "+387" }, { name: "Botswana", flag: "🇧🇼", code: "+267" },
+            { name: "Brazil", flag: "🇧🇷", code: "+55" }, { name: "Brunei", flag: "🇧🇳", code: "+673" },
+            { name: "Bulgaria", flag: "🇧🇬", code: "+359" }, { name: "Burkina Faso", flag: "🇧🇫", code: "+226" },
+            { name: "Burundi", flag: "🇧🇮", code: "+257" }, { name: "Cambodia", flag: "🇰🇭", code: "+855" },
+            { name: "Cameroon", flag: "🇨🇲", code: "+237" }, { name: "Canada", flag: "🇨🇦", code: "+1" },
+            { name: "Cape Verde", flag: "🇨🇻", code: "+238" }, { name: "Central African Republic", flag: "🇨🇫", code: "+236" },
+            { name: "Chad", flag: "🇹🇩", code: "+235" }, { name: "Chile", flag: "🇨🇱", code: "+56" },
+            { name: "China", flag: "🇨🇳", code: "+86" }, { name: "Colombia", flag: "🇨🇴", code: "+57" },
+            { name: "Comoros", flag: "🇰🇲", code: "+269" }, { name: "Congo", flag: "🇨🇬", code: "+242" },
+            { name: "Costa Rica", flag: "🇨🇷", code: "+506" }, { name: "Croatia", flag: "🇭🇷", code: "+385" },
+            { name: "Cuba", flag: "🇨🇺", code: "+53" }, { name: "Cyprus", flag: "🇨🇾", code: "+357" },
+            { name: "Czech Republic", flag: "🇨🇿", code: "+420" }, { name: "Denmark", flag: "🇩🇰", code: "+45" },
+            { name: "Djibouti", flag: "🇩🇯", code: "+253" }, { name: "Dominica", flag: "🇩🇲", code: "+1-767" },
+            { name: "Dominican Republic", flag: "🇩🇴", code: "+1-809" }, { name: "Ecuador", flag: "🇪🇨", code: "+593" },
+            { name: "Egypt", flag: "🇪🇬", code: "+20" }, { name: "El Salvador", flag: "🇸🇻", code: "+503" },
+            { name: "Equatorial Guinea", flag: "🇬🇶", code: "+240" }, { name: "Eritrea", flag: "🇪🇷", code: "+291" },
+            { name: "Estonia", flag: "🇪🇪", code: "+372" }, { name: "Eswatini", flag: "🇸🇿", code: "+268" },
+            { name: "Ethiopia", flag: "🇪🇹", code: "+251" }, { name: "Fiji", flag: "🇫🇯", code: "+679" },
+            { name: "Finland", flag: "🇫🇮", code: "+358" }, { name: "France", flag: "🇫🇷", code: "+33" },
+            { name: "Gabon", flag: "🇬🇦", code: "+241" }, { name: "Gambia", flag: "🇬🇲", code: "+220" },
+            { name: "Georgia", flag: "🇬🇪", code: "+995" }, { name: "Germany", flag: "🇩🇪", code: "+49" },
+            { name: "Ghana", flag: "🇬🇭", code: "+233" }, { name: "Greece", flag: "🇬🇷", code: "+30" },
+            { name: "Grenada", flag: "🇬🇩", code: "+1-473" }, { name: "Guatemala", flag: "🇬🇹", code: "+502" },
+            { name: "Guinea", flag: "🇬🇳", code: "+224" }, { name: "Guinea-Bissau", flag: "🇬🇼", code: "+245" },
+            { name: "Guyana", flag: "🇬🇾", code: "+592" }, { name: "Haiti", flag: "🇭🇹", code: "+509" },
+            { name: "Honduras", flag: "🇭🇳", code: "+504" }, { name: "Hungary", flag: "🇭🇺", code: "+36" },
+            { name: "Iceland", flag: "🇮🇸", code: "+354" }, { name: "India", flag: "🇮🇳", code: "+91" },
+            { name: "Indonesia", flag: "🇮🇩", code: "+62" }, { name: "Iran", flag: "🇮🇷", code: "+98" },
+            { name: "Iraq", flag: "🇮🇶", code: "+964" }, { name: "Ireland", flag: "🇮🇪", code: "+353" },
+            { name: "Israel", flag: "🇮🇱", code: "+972" }, { name: "Italy", flag: "🇮🇹", code: "+39" },
+            { name: "Jamaica", flag: "🇯🇲", code: "+1-876" }, { name: "Japan", flag: "🇯🇵", code: "+81" },
+            { name: "Jordan", flag: "🇯🇴", code: "+962" }, { name: "Kazakhstan", flag: "🇰🇿", code: "+7" },
+            { name: "Kenya", flag: "🇰🇪", code: "+254" }, { name: "Kiribati", flag: "🇰🇮", code: "+686" },
+            { name: "Kuwait", flag: "🇰🇼", code: "+965" }, { name: "Kyrgyzstan", flag: "🇰🇬", code: "+996" },
+            { name: "Laos", flag: "🇱🇦", code: "+856" }, { name: "Latvia", flag: "🇱🇻", code: "+371" },
+            { name: "Lebanon", flag: "🇱🇧", code: "+961" }, { name: "Lesotho", flag: "🇱🇸", code: "+266" },
+            { name: "Liberia", flag: "🇱🇷", code: "+231" }, { name: "Libya", flag: "🇱🇾", code: "+218" },
+            { name: "Liechtenstein", flag: "🇱🇮", code: "+423" }, { name: "Lithuania", flag: "🇱🇹", code: "+370" },
+            { name: "Luxembourg", flag: "🇱🇺", code: "+352" }, { name: "Madagascar", flag: "🇲🇬", code: "+261" },
+            { name: "Malawi", flag: "🇲🇼", code: "+265" }, { name: "Malaysia", flag: "🇲🇾", code: "+60" },
+            { name: "Maldives", flag: "🇲🇻", code: "+960" }, { name: "Mali", flag: "🇲🇱", code: "+223" },
+            { name: "Malta", flag: "🇲🇹", code: "+356" }, { name: "Marshall Islands", flag: "🇲🇭", code: "+692" },
+            { name: "Mauritania", flag: "🇲🇷", code: "+222" }, { name: "Mauritius", flag: "🇲🇺", code: "+230" },
+            { name: "Mexico", flag: "🇲🇽", code: "+52" }, { name: "Micronesia", flag: "🇫🇲", code: "+691" },
+            { name: "Moldova", flag: "🇲🇩", code: "+373" }, { name: "Monaco", flag: "🇲🇨", code: "+377" },
+            { name: "Mongolia", flag: "🇲🇳", code: "+976" }, { name: "Montenegro", flag: "🇲🇪", code: "+382" },
+            { name: "Morocco", flag: "🇲🇦", code: "+212" }, { name: "Mozambique", flag: "🇲🇿", code: "+258" },
+            { name: "Myanmar", flag: "🇲🇲", code: "+95" }, { name: "Namibia", flag: "🇳🇦", code: "+264" },
+            { name: "Nauru", flag: "🇳🇷", code: "+674" }, { name: "Nepal", flag: "🇳🇵", code: "+977" },
+            { name: "Netherlands", flag: "🇳🇱", code: "+31" }, { name: "New Zealand", flag: "🇳🇿", code: "+64" },
+            { name: "Nicaragua", flag: "🇳🇮", code: "+505" }, { name: "Niger", flag: "🇳🇪", code: "+227" },
+            { name: "Nigeria", flag: "🇳🇬", code: "+234" }, { name: "North Korea", flag: "🇰🇵", code: "+850" },
+            { name: "North Macedonia", flag: "🇲🇰", code: "+389" }, { name: "Norway", flag: "🇳🇴", code: "+47" },
+            { name: "Oman", flag: "🇴🇲", code: "+968" }, { name: "Pakistan", flag: "🇵🇰", code: "+92" },
+            { name: "Palau", flag: "🇵🇼", code: "+680" }, { name: "Panama", flag: "🇵🇦", code: "+507" },
+            { name: "Papua New Guinea", flag: "🇵🇬", code: "+675" }, { name: "Paraguay", flag: "🇵🇾", code: "+595" },
+            { name: "Peru", flag: "🇵🇪", code: "+51" }, { name: "Philippines", flag: "🇵🇭", code: "+63" },
+            { name: "Poland", flag: "🇵🇱", code: "+48" }, { name: "Portugal", flag: "🇵🇹", code: "+351" },
+            { name: "Qatar", flag: "🇶🇦", code: "+974" }, { name: "Romania", flag: "🇷🇴", code: "+40" },
+            { name: "Russia", flag: "🇷🇺", code: "+7" }, { name: "Rwanda", flag: "🇷🇼", code: "+250" },
+            { name: "Saint Kitts and Nevis", flag: "🇰🇳", code: "+1-869" }, { name: "Saint Lucia", flag: "🇱🇨", code: "+1-758" },
+            { name: "Saint Vincent and the Grenadines", flag: "🇻🇨", code: "+1-784" }, { name: "Samoa", flag: "🇼🇸", code: "+685" },
+            { name: "San Marino", flag: "🇸🇲", code: "+378" }, { name: "Sao Tome and Principe", flag: "🇸🇹", code: "+239" },
+            { name: "Saudi Arabia", flag: "🇸🇦", code: "+966" }, { name: "Senegal", flag: "🇸🇳", code: "+221" },
+            { name: "Serbia", flag: "🇷🇸", code: "+381" }, { name: "Seychelles", flag: "🇸🇨", code: "+248" },
+            { name: "Sierra Leone", flag: "🇸🇱", code: "+232" }, { name: "Singapore", flag: "🇸🇬", code: "+65" },
+            { name: "Slovakia", flag: "🇸🇰", code: "+421" }, { name: "Slovenia", flag: "🇸🇮", code: "+386" },
+            { name: "Solomon Islands", flag: "🇸🇧", code: "+677" }, { name: "Somalia", flag: "🇸🇴", code: "+252" },
+            { name: "South Africa", flag: "🇿🇦", code: "+27" }, { name: "South Korea", flag: "🇰🇷", code: "+82" },
+            { name: "South Sudan", flag: "🇸🇸", code: "+211" }, { name: "Spain", flag: "🇪🇸", code: "+34" },
+            { name: "Sri Lanka", flag: "🇱🇰", code: "+94" }, { name: "Sudan", flag: "🇸🇩", code: "+249" },
+            { name: "Suriname", flag: "🇸🇷", code: "+597" }, { name: "Sweden", flag: "🇸🇪", code: "+46" },
+            { name: "Switzerland", flag: "🇨🇭", code: "+41" }, { name: "Syria", flag: "🇸🇾", code: "+963" },
+            { name: "Taiwan", flag: "🇹🇼", code: "+886" }, { name: "Tajikistan", flag: "🇹🇯", code: "+992" },
+            { name: "Tanzania", flag: "🇹🇿", code: "+255" }, { name: "Thailand", flag: "🇹🇭", code: "+66" },
+            { name: "Timor-Leste", flag: "🇹🇱", code: "+670" }, { name: "Togo", flag: "🇹🇬", code: "+228" },
+            { name: "Tonga", flag: "🇹🇴", code: "+676" }, { name: "Trinidad and Tobago", flag: "🇹🇹", code: "+1-868" },
+            { name: "Tunisia", flag: "🇹🇳", code: "+216" }, { name: "Turkey", flag: "🇹🇷", code: "+90" },
+            { name: "Turkmenistan", flag: "🇹🇲", code: "+993" }, { name: "Tuvalu", flag: "🇹🇻", code: "+688" },
+            { name: "Uganda", flag: "🇺🇬", code: "+256" }, { name: "Ukraine", flag: "🇺🇦", code: "+380" },
+            { name: "United Arab Emirates", flag: "🇦🇪", code: "+971" }, { name: "United Kingdom", flag: "🇬🇧", code: "+44" },
+            { name: "United States", flag: "🇺🇸", code: "+1" }, { name: "Uruguay", flag: "🇺🇾", code: "+598" },
+            { name: "Uzbekistan", flag: "🇺🇿", code: "+998" }, { name: "Vanuatu", flag: "🇻🇺", code: "+678" },
+            { name: "Vatican City", flag: "🇻🇦", code: "+379" }, { name: "Venezuela", flag: "🇻🇪", code: "+58" },
+            { name: "Vietnam", flag: "🇻🇳", code: "+84" }, { name: "Yemen", flag: "🇾🇪", code: "+967" },
+            { name: "Zambia", flag: "🇿🇲", code: "+260" }, { name: "Zimbabwe", flag: "🇿🇼", code: "+263" }
+        ];
+
+        const enterpriseData = [
+            { icon: "fa-desktop", title: "Web & Apps", desc: "Building high-performance custom websites, desktop software, and native mobile applications engineered for global scalability.", renderType: "type1" },
+            { icon: "fa-bolt", title: "Supersonic Performance", desc: "Lightning-fast execution speeds, optimized routing, and instantaneous response times across all digital platforms.", renderType: "type2" },
+            { icon: "fa-cubes", title: "No Plugins Dependency", desc: "A clean, native architecture completely free from heavy third-party plugins or external software dependencies.", renderType: "type3" },
+            { icon: "fa-network-wired", title: "Custom API & Sub-Domains", desc: "Seamless API creation, integration, and high-performance routing management designed to handle multiple sub-domains.", renderType: "type4" },
+            { icon: "fa-photo-film", title: "Media Production", desc: "High-end multimedia production, commercial video editing, and professional image retouching to elevate your brand.", renderType: "type5" },
+            { icon: "fa-ruler-combined", title: "Dimension Calculators", desc: "Custom business size calculators and smart data processing tools engineered for precise e-commerce sizing.", renderType: "type6" },
+            { icon: "fa-shield-halved", title: "Secure Architecture", desc: "Military-grade encryption and advanced firewall protection ensuring absolute data safety and secure transactions.", renderType: "type7" },
+            { icon: "fa-chart-line", title: "Global Affiliate & Scale", desc: "Robust portals featuring real-time tracking, multi-channel synchronization, and automated commission structures.", renderType: "type8" },
+            { icon: "fa-chess-queen", title: "Enterprise Growth Advisory", desc: "Tailored strategic blueprints and digital consulting for international business expansion and market leadership.", renderType: "type9" }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dialCodeSelect = document.getElementById('userDialCode');
+            if(dialCodeSelect) {
+                countriesList.forEach(c => {
+                    let opt = document.createElement('option');
+                    opt.value = c.code;
+                    opt.innerText = `${c.flag} ${c.name} (${c.code})`;
+                    dialCodeSelect.appendChild(opt);
+                });
+                
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data && data.country_calling_code) {
+                            let matched = Array.from(dialCodeSelect.options).find(o => o.text.includes(data.country_calling_code));
+                            dialCodeSelect.value = matched ? matched.value : "+880";
+                        } else {
+                            dialCodeSelect.value = "+880";
+                        }
+                    })
+                    .catch(() => { dialCodeSelect.value = "+880"; });
+            }
+
+            const gridContainer = document.getElementById('dynamic-services-grid');
+            if(gridContainer) {
+                const fragment = document.createDocumentFragment();
+                enterpriseData.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'feature-card';
+
+                    let graphHTML = '';
+                    if(item.renderType === 'type1') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-1"><div class="graph-type-1-inner"></div></div></div>`;
+                    } else if(item.renderType === 'type2') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-2">${'<div class="ecom-thick-bar"></div>'.repeat(10)}</div></div>`;
+                    } else if(item.renderType === 'type3') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-3"><div class="badge-3"><i class="fa-solid fa-bolt"></i> SUPERSONIC</div></div></div>`;
+                    } else if(item.renderType === 'type4') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-4"><div class="node-4"></div><div class="line-4"><div class="ball-4"></div></div><div class="node-4"></div></div></div>`;
+                    } else if(item.renderType === 'type5') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-5"><div style="font-size:0.5rem; color:var(--gold-solid); font-weight:700;">MEDIA STREAM</div><div class="track-5"><div class="fill-5"></div></div></div></div>`;
+                    } else if(item.renderType === 'type6') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-6"><div style="font-size:0.5rem; color:var(--gold-solid); font-weight:700;">CALCULATOR</div><div class="track-6"><div class="fill-6"></div></div></div></div>`;
+                    } else if(item.renderType === 'type7') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-7">${'<div class="eq-7"></div>'.repeat(10)}</div></div>`;
+                    } else if(item.renderType === 'type8') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-8">${'<div class="aff-bar"></div>'.repeat(6)}</div></div>`;
+                    } else if(item.renderType === 'type9') {
+                        graphHTML = `<div class="graph-box"><div class="graph-type-9"><div class="ring-9"></div><div class="core-9"></div></div></div>`;
+                    }
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="feature-icon"><i class="fa-solid ${item.icon}"></i></div>
+                            <h3 class="feature-title">${item.title}</h3>
+                            <p class="feature-desc">${item.desc}</p>
+                        </div>
+                        ${graphHTML}
+                    `;
+                    fragment.appendChild(card);
+                });
+                gridContainer.appendChild(fragment);
+            }
+        });
+    </script>
 </body>
 </html>
